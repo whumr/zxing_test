@@ -63,7 +63,6 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
   private CaptureActivityHandler handler;
   private Result savedResultToShow;
   private ViewfinderView viewfinderView;
-  private Result lastResult;
   private boolean hasSurface;
   private IntentSource source;
   private Collection<BarcodeFormat> decodeFormats;
@@ -85,13 +84,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
   @Override
   public void onCreate(Bundle icicle) {
     super.onCreate(icicle);
-
-//    Window window = getWindow();
-//    window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     setContentView(R.layout.capture);
-
-//    hasSurface = false;
-//    PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
   }
 
   @Override
@@ -106,19 +99,10 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
 
     viewfinderView = (ViewfinderView) findViewById(R.id.viewfinder_view);
     viewfinderView.setCameraManager(cameraManager);
+    
+    viewfinderView.setVisibility(View.VISIBLE);
 
     handler = null;
-    lastResult = null;
-
-    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-
-    if (prefs.getBoolean(PreferencesActivity.KEY_DISABLE_AUTO_ORIENTATION, true)) {
-      setRequestedOrientation(getCurrentOrientation());
-    } else {
-      setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
-    }
-
-    resetStatusView();
 
     SurfaceView surfaceView = (SurfaceView) findViewById(R.id.preview_view);
     SurfaceHolder surfaceHolder = surfaceView.getHolder();
@@ -135,17 +119,6 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
 //    scanFromWebPageManager = null;
     decodeFormats = null;
     characterSet = null;
-  }
-
-  private int getCurrentOrientation() {
-    int rotation = getWindowManager().getDefaultDisplay().getRotation();
-    switch (rotation) {
-      case Surface.ROTATION_0:
-      case Surface.ROTATION_90:
-        return ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
-      default:
-        return ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE;
-    }
   }
 
   @Override
@@ -177,8 +150,8 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
           finish();
           return true;
         }
-        if ((source == IntentSource.NONE || source == IntentSource.ZXING_LINK) && lastResult != null) {
-          restartPreviewAfterDelay(0L);
+        if ((source == IntentSource.NONE || source == IntentSource.ZXING_LINK)) {
+//          restartPreviewAfterDelay(0L);
           return true;
         }
         break;
@@ -248,7 +221,6 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
    * @param barcode   A greyscale bitmap of the camera data which was decoded.
    */
   public void handleDecode(Result rawResult, Bitmap barcode, float scaleFactor) {
-    lastResult = rawResult;
 
     boolean fromLiveScan = barcode != null;
     if (fromLiveScan) {
@@ -333,18 +305,6 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
     builder.setTitle(getString(R.string.app_name));
     builder.setMessage(getString(R.string.msg_camera_framework_bug));
     builder.show();
-  }
-
-  public void restartPreviewAfterDelay(long delayMS) {
-//    if (handler != null) {
-//      handler.sendEmptyMessageDelayed(R.id.restart_preview, delayMS);
-//    }
-    resetStatusView();
-  }
-
-  private void resetStatusView() {
-    viewfinderView.setVisibility(View.VISIBLE);
-    lastResult = null;
   }
 
   public void drawViewfinder() {
