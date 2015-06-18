@@ -24,6 +24,7 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.util.AttributeSet;
@@ -155,6 +156,14 @@ public final class ViewfinderView extends View {
                             frame.right + POINT_SIZE,
                             frame.bottom + POINT_SIZE);
     }
+    
+    paint.setColor(Color.BLUE);
+	paint.setStrokeWidth(10);
+	paint.setAlpha(50);
+	if (rect != null)
+		canvas.drawRect(rect, paint);
+	if (rect1 != null)
+		canvas.drawRect(rect1, paint);
   }
 
   public void drawViewfinder() {
@@ -187,5 +196,12 @@ public final class ViewfinderView extends View {
       }
     }
   }
+  
+  private Rect rect, rect1;
+  public void setRect(Rect rect, Rect rect1) {
+		this.rect = rect;
+		this.rect1 = rect1;
+		this.invalidate();
+	}
 
 }

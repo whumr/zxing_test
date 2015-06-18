@@ -69,6 +69,8 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
   private Map<DecodeHintType,?> decodeHints;
   private String characterSet;
 
+  private TestView testView;
+  
   ViewfinderView getViewfinderView() {
     return viewfinderView;
   }
@@ -96,7 +98,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
     // first launch. That led to bugs where the scanning rectangle was the wrong size and partially
     // off screen.
     cameraManager = new CameraManager(getApplication());
-
+//    testView = (TestView) findViewById(R.id.testView);
     viewfinderView = (ViewfinderView) findViewById(R.id.viewfinder_view);
     viewfinderView.setCameraManager(cameraManager);
     
@@ -119,6 +121,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
 //    scanFromWebPageManager = null;
     decodeFormats = null;
     characterSet = null;
+    
   }
 
   @Override
@@ -298,6 +301,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
       Log.w(TAG, "Unexpected error initializing camera", e);
       displayFrameworkBugMessageAndExit();
     }
+    viewfinderView.setRect(cameraManager.getFramingRect(), cameraManager.getFramingRectInPreview());
   }
 
   private void displayFrameworkBugMessageAndExit() {
